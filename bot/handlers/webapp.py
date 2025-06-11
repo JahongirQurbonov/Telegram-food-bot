@@ -9,6 +9,7 @@ async def handle_webapp_data(message: Message):
     """WebApp'dan kelgan ma'lumotlarni qayta ishlash"""
     try:
         # WebApp'dan kelgan JSON ma'lumotlarni parse qilish
+        print(f"Received web_app_data: {message.web_app_data.data}")
         data = json.loads(message.web_app_data.data)
         
         # Buyurtma ma'lumotlarini olish
@@ -44,7 +45,8 @@ async def handle_webapp_data(message: Message):
         
         print(f"📊 Admin log: {admin_text}")  # Console'ga chiqarish
         
-    except json.JSONDecodeError:
+    except json.JSONDecodeError as e:
+        print(f"JSON decode error: {e}")
         await message.answer(
             "❌ Buyurtmani qayta ishlashda xatolik yuz berdi.\n"
             "Error processing your order. Please try again."

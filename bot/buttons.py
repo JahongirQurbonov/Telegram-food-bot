@@ -5,6 +5,7 @@ def get_start_keyboard():
     """Start buyrug'i uchun tugmalar"""
     # Agar WebApp URL HTTPS bo'lsa, WebApp tugmasini ko'rsatish
     if config.WEBAPP_URL and config.WEBAPP_URL.startswith('https://'):
+        print(f"Using WebApp URL: {config.WEBAPP_URL}")  # Debug uchun
         keyboard = InlineKeyboardMarkup(
             inline_keyboard=[
                 [
@@ -17,6 +18,7 @@ def get_start_keyboard():
         )
     else:
         # Vaqtincha oddiy tugmalar
+        print(f"Invalid WebApp URL: {config.WEBAPP_URL}")  # Debug uchun
         keyboard = InlineKeyboardMarkup(
             inline_keyboard=[
                 [
