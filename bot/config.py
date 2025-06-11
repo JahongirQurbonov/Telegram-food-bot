@@ -11,6 +11,9 @@ class Config:
     # WebApp sozlamalari  
     WEBAPP_URL = os.getenv('WEBAPP_URL', 'https://your-webapp-url.com')
     
+    # To'lov sozlamalari
+    PAYMENT_TOKEN = os.getenv('PAYMENT_TOKEN')  # Stripe/PaymentProvider token
+    
     # Webhook sozlamalari (production uchun)
     WEBHOOK_HOST = os.getenv('WEBHOOK_HOST')
     WEBHOOK_PATH = f'/webhook' if BOT_TOKEN else None
