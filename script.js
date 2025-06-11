@@ -196,7 +196,10 @@ function renderCart() {
 
 // Process order
 function processOrder() {
+  console.log("🔍 processOrder() called")
+  
   if (cart.length === 0) {
+    console.log("❌ Cart is empty")
     tg.showAlert("Your cart is empty!")
     return
   }
@@ -212,9 +215,31 @@ function processOrder() {
     user: tg.initDataUnsafe.user || {},
   }
 
-  // Send data to Telegram bot
-  console.log("Sending data to bot:", JSON.stringify(orderData))
-  tg.sendData(JSON.stringify(orderData))
+  console.log("📤 Sending order data:", orderData)
+  console.log("📤 JSON string:", JSON.stringify(orderData))
+  
+  // Telegram WebApp mavjudligini tekshirish
+  if (!window.Telegram || !window.Telegram.WebApp) {
+    console.error("❌ Telegram WebApp not available")
+    alert("Telegram WebApp not available!")
+    return
+  }
+  
+  console.log("✅ Telegram WebApp available")
+  console.log("🔍 tg object:", tg)
+  
+  try {
+    // Send data to Telegram bot
+    tg.sendData(JSON.stringify(orderData))
+    console.log("✅ Data sent successfully")
+    
+    // Show success message
+    tg.showAlert("Order sent successfully!")
+    
+  } catch (error) {
+    console.error("❌ Error sending data:", error)
+    alert("Error sending order: " + error.message)
+  }
 
   // Haptic feedback
   if (tg.HapticFeedback) {
