@@ -1,10 +1,23 @@
 // Telegram WebApp initialization
-const tg = window.Telegram.WebApp
-tg.expand()
+console.log("🚀 Script started loading...")
+
+const tg = window.Telegram?.WebApp
+console.log("🔍 Telegram object:", window.Telegram)
+console.log("🔍 WebApp object:", tg)
+
+if (tg) {
+  tg.expand()
+  console.log("✅ WebApp expanded")
+} else {
+  console.error("❌ Telegram WebApp not found!")
+}
 
 // Set theme colors
-document.documentElement.style.setProperty("--tg-theme-bg-color", tg.themeParams.bg_color || "#2c3e50")
-document.documentElement.style.setProperty("--tg-theme-text-color", tg.themeParams.text_color || "#ffffff")
+if (tg?.themeParams) {
+  document.documentElement.style.setProperty("--tg-theme-bg-color", tg.themeParams.bg_color || "#2c3e50")
+  document.documentElement.style.setProperty("--tg-theme-text-color", tg.themeParams.text_color || "#ffffff")
+  console.log("✅ Theme colors set")
+}
 
 // Menu data
 const menuItems = [
@@ -26,28 +39,66 @@ const menuItems = [
 const cart = []
 
 // DOM elements
-const menuGrid = document.getElementById("menuGrid")
-const cartItems = document.getElementById("cartItems")
-const cartCount = document.getElementById("cartCount")
-const payBtn = document.getElementById("payBtn")
-const orderComment = document.getElementById("orderComment")
-const menuPage = document.getElementById("menuPage")
-const cartPage = document.getElementById("cartPage")
+let menuGrid, cartItems, cartCount, payBtn, orderComment, menuPage, cartPage
 
 // Initialize app
 document.addEventListener("DOMContentLoaded", () => {
+  console.log("📄 DOM loaded")
+
+  // Get DOM elements
+  menuGrid = document.getElementById("menuGrid")
+  cartItems = document.getElementById("cartItems")
+  cartCount = document.getElementById("cartCount")
+  payBtn = document.getElementById("payBtn")
+  orderComment = document.getElementById("orderComment")
+  menuPage = document.getElementById("menuPage")
+  cartPage = document.getElementById("cartPage")
+
+  console.log("🔍 DOM elements:", {
+    menuGrid: !!menuGrid,
+    cartItems: !!cartItems,
+    cartCount: !!cartCount,
+    payBtn: !!payBtn,
+    orderComment: !!orderComment,
+    menuPage: !!menuPage,
+    cartPage: !!cartPage,
+  })
+
+  if (!payBtn) {
+    console.error("❌ PAY button not found!")
+    return
+  }
+
+  // Add click event listener to PAY button
+  payBtn.addEventListener("click", (event) => {
+    console.log("🔥 PAY button clicked!")
+    event.preventDefault()
+    processOrder()
+  })
+
   renderMenu()
   updateCartDisplay()
 
   // Set up Telegram WebApp
-  tg.ready()
+  if (tg) {
+    tg.ready()
+    console.log("✅ Telegram WebApp ready")
 
-  // Enable closing confirmation
-  tg.enableClosingConfirmation()
+    // Enable closing confirmation
+    tg.enableClosingConfirmation()
+    console.log("✅ Closing confirmation enabled")
+  }
 })
 
 // Render menu items
 function renderMenu() {
+  console.log("🍽️ Rendering menu...")
+
+  if (!menuGrid) {
+    console.error("❌ Menu grid not found!")
+    return
+  }
+
   menuGrid.innerHTML = ""
 
   menuItems.forEach((item) => {
@@ -72,15 +123,25 @@ function renderMenu() {
 
     menuGrid.appendChild(menuItemDiv)
   })
+
+  console.log(`✅ Menu rendered with ${menuItems.length} items`)
 }
 
 // Add item to cart
 function addToCart(itemId) {
+  console.log(`🛒 Adding item ${itemId} to cart`)
+
   const item = menuItems.find((i) => i.id === itemId)
+  if (!item) {
+    console.error(`❌ Item ${itemId} not found!`)
+    return
+  }
+
   const existingItem = cart.find((i) => i.id === itemId)
 
   if (existingItem) {
     existingItem.quantity += 1
+    console.log(`📈 Increased quantity for ${item.name}: ${existingItem.quantity}`)
   } else {
     cart.push({
       id: item.id,
@@ -89,35 +150,49 @@ function addToCart(itemId) {
       price: item.price,
       quantity: 1,
     })
+    console.log(`➕ Added new item to cart: ${item.name}`)
   }
 
   updateCartDisplay()
 
   // Haptic feedback
-  if (tg.HapticFeedback) {
+  if (tg?.HapticFeedback) {
     tg.HapticFeedback.impactOccurred("light")
+    console.log("📳 Haptic feedback triggered")
   }
 
   // Show notification
-  tg.showAlert(`${item.name} added to cart!`)
+  if (tg?.showAlert) {
+    tg.showAlert(`${item.name} added to cart!`)
+    console.log(`🔔 Alert shown: ${item.name} added`)
+  } else {
+    alert(`${item.name} added to cart!`)
+  }
 }
 
 // Remove item from cart
 function removeFromCart(itemId) {
+  console.log(`🗑️ Removing item ${itemId} from cart`)
+
   const itemIndex = cart.findIndex((item) => item.id === itemId)
-  if (itemIndex === -1) return
+  if (itemIndex === -1) {
+    console.error(`❌ Item ${itemId} not found in cart!`)
+    return
+  }
 
   if (cart[itemIndex].quantity > 1) {
     cart[itemIndex].quantity -= 1
+    console.log(`📉 Decreased quantity for ${cart[itemIndex].name}: ${cart[itemIndex].quantity}`)
   } else {
-    cart.splice(itemIndex, 1)
+    const removedItem = cart.splice(itemIndex, 1)[0]
+    console.log(`➖ Removed item from cart: ${removedItem.name}`)
   }
 
   updateCartDisplay()
   renderCart()
 
   // Haptic feedback
-  if (tg.HapticFeedback) {
+  if (tg?.HapticFeedback) {
     tg.HapticFeedback.impactOccurred("light")
   }
 }
@@ -127,36 +202,62 @@ function updateCartDisplay() {
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0)
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
 
-  cartCount.textContent = totalItems
-  cartCount.style.display = totalItems > 0 ? "flex" : "none"
+  console.log(`🔄 Updating cart display: ${totalItems} items, $${total.toFixed(2)}`)
 
-  payBtn.textContent = `PAY $${total.toFixed(2)}`
-  payBtn.disabled = totalItems === 0
+  if (cartCount) {
+    cartCount.textContent = totalItems
+    cartCount.style.display = totalItems > 0 ? "flex" : "none"
+  }
+
+  if (payBtn) {
+    payBtn.textContent = `PAY $${total.toFixed(2)}`
+    payBtn.disabled = totalItems === 0
+    console.log(`💰 PAY button updated: ${payBtn.textContent}, disabled: ${payBtn.disabled}`)
+  }
 }
 
 // Show cart page
 function showCart() {
-  menuPage.style.display = "none"
-  cartPage.style.display = "block"
-  renderCart()
+  console.log("🛒 Showing cart page")
+
+  if (menuPage && cartPage) {
+    menuPage.style.display = "none"
+    cartPage.style.display = "block"
+    renderCart()
+  }
 
   // Update main button
-  tg.MainButton.setText("Back to Menu")
-  tg.MainButton.show()
-  tg.MainButton.onClick(showMenu)
+  if (tg?.MainButton) {
+    tg.MainButton.setText("Back to Menu")
+    tg.MainButton.show()
+    tg.MainButton.onClick(showMenu)
+  }
 }
 
 // Show menu page
 function showMenu() {
-  menuPage.style.display = "block"
-  cartPage.style.display = "none"
+  console.log("🍽️ Showing menu page")
+
+  if (menuPage && cartPage) {
+    menuPage.style.display = "block"
+    cartPage.style.display = "none"
+  }
 
   // Hide main button
-  tg.MainButton.hide()
+  if (tg?.MainButton) {
+    tg.MainButton.hide()
+  }
 }
 
 // Render cart items
 function renderCart() {
+  console.log("🛒 Rendering cart items")
+
+  if (!cartItems) {
+    console.error("❌ Cart items container not found!")
+    return
+  }
+
   if (cart.length === 0) {
     cartItems.innerHTML = `
       <div class="empty-cart">
@@ -165,6 +266,7 @@ function renderCart() {
         <p>Add some delicious items from our menu!</p>
       </div>
     `
+    console.log("📭 Cart is empty")
     return
   }
 
@@ -192,19 +294,25 @@ function renderCart() {
 
     cartItems.appendChild(cartItemDiv)
   })
+
+  console.log(`✅ Cart rendered with ${cart.length} items`)
 }
 
-// Process order
+// Process order - MAIN FUNCTION
 function processOrder() {
-  console.log("🔍 processOrder() called")
+  console.log("🔥🔥🔥 processOrder() CALLED! 🔥🔥🔥")
 
   if (cart.length === 0) {
     console.log("❌ Cart is empty")
-    tg.showAlert("Your cart is empty!")
+    if (tg?.showAlert) {
+      tg.showAlert("Your cart is empty!")
+    } else {
+      alert("Your cart is empty!")
+    }
     return
   }
 
-  const comment = orderComment.value.trim()
+  const comment = orderComment?.value?.trim() || ""
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
 
   const orderData = {
@@ -212,10 +320,10 @@ function processOrder() {
     total: total,
     comment: comment,
     timestamp: new Date().toISOString(),
-    user: tg.initDataUnsafe.user || {},
+    user: tg?.initDataUnsafe?.user || {},
   }
 
-  console.log("📤 Sending order data:", orderData)
+  console.log("📤 Order data prepared:", orderData)
   console.log("📤 JSON string:", JSON.stringify(orderData))
 
   // Telegram WebApp mavjudligini tekshirish
@@ -227,51 +335,74 @@ function processOrder() {
 
   console.log("✅ Telegram WebApp available")
   console.log("🔍 tg object:", tg)
+  console.log("🔍 tg.sendData function:", typeof tg.sendData)
 
   try {
     // Send data to Telegram bot
+    console.log("📤 Calling tg.sendData()...")
     tg.sendData(JSON.stringify(orderData))
-    console.log("✅ Data sent successfully")
+    console.log("✅ tg.sendData() called successfully")
 
     // Show success message
-    tg.showAlert("Order sent successfully!")
+    if (tg.showAlert) {
+      tg.showAlert("Order sent successfully!")
+    } else {
+      alert("Order sent successfully!")
+    }
   } catch (error) {
     console.error("❌ Error sending data:", error)
     alert("Error sending order: " + error.message)
   }
 
   // Haptic feedback
-  if (tg.HapticFeedback) {
+  if (tg?.HapticFeedback) {
     tg.HapticFeedback.notificationOccurred("success")
+    console.log("📳 Success haptic feedback triggered")
   }
 }
 
 // Close app
 function closeApp() {
-  tg.close()
+  console.log("❌ Closing app")
+  if (tg?.close) {
+    tg.close()
+  }
 }
 
 // Handle back button
-tg.onEvent("backButtonClicked", () => {
-  if (cartPage.style.display !== "none") {
-    showMenu()
-  } else {
-    tg.close()
-  }
-})
+if (tg) {
+  tg.onEvent("backButtonClicked", () => {
+    console.log("⬅️ Back button clicked")
+    if (cartPage && cartPage.style.display !== "none") {
+      showMenu()
+    } else {
+      tg.close()
+    }
+  })
+}
 
 // Show back button when in cart
 function updateBackButton() {
-  if (cartPage.style.display !== "none") {
-    tg.BackButton.show()
+  if (cartPage && cartPage.style.display !== "none") {
+    tg?.BackButton?.show()
   } else {
-    tg.BackButton.hide()
+    tg?.BackButton?.hide()
   }
 }
 
 // Update back button visibility
-const observer = new MutationObserver(() => {
-  updateBackButton()
+if (cartPage) {
+  const observer = new MutationObserver(() => {
+    updateBackButton()
+  })
+  observer.observe(cartPage, { attributes: true, attributeFilter: ["style"] })
+}
+
+// Global error handler
+window.addEventListener("error", (event) => {
+  console.error("🚨 Global error:", event.error)
+  console.error("🚨 Error message:", event.message)
+  console.error("🚨 Error source:", event.filename, "line:", event.lineno)
 })
 
-observer.observe(cartPage, { attributes: true, attributeFilter: ["style"] })
+console.log("✅ Script loaded completely")
