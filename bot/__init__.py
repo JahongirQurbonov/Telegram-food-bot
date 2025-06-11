@@ -1,0 +1,3 @@
+"""
+Telegram Food Bot Package
+"""

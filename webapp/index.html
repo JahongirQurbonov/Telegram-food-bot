@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Durger King - Order Food</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <button class="close-btn" onclick="closeApp()">✕</button>
+            <h1 class="title">Durger King</h1>
+            <div class="menu-btn">⋮</div>
+        </header>
+
+        <main class="main-content">
+            <div class="menu-grid" id="menuGrid">
+                <!-- Menu items will be populated by JavaScript -->
+            </div>
+        </main>
+
+        <div class="cart-summary" id="cartSummary" style="display: none;">
+            <div class="cart-header">
+                <h2>YOUR ORDER</h2>
+                <button class="edit-btn" onclick="showMenu()">Edit</button>
+            </div>
+            
+            <div class="cart-items" id="cartItems">
+                <!-- Cart items will be populated by JavaScript -->
+            </div>
+            
+            <div class="comment-section">
+                <textarea 
+                    id="orderComment" 
+                    placeholder="Add comment..."
+                    rows="3"
+                ></textarea>
+                <div class="comment-hint">Any special requests, details, final wishes etc.</div>
+            </div>
+            
+            <button class="pay-btn" id="payBtn" onclick="processOrder()">
+                PAY $0.00
+            </button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
